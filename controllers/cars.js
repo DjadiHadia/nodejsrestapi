@@ -32,34 +32,60 @@ exports.getCar = (req, res, next) => {
   } 
 }
 
-//create user
-exports.createCar = (req, res, next) => {
-  const registration_number = req.body.registration_number;
-  const brand = req.body.brand;
-  const color = req.body.color;
-  const year = req.body.year;
-  const agencyId = req.body.agencyId;
- 
-  Car.create({
-    registration_number: registration_number,
-    brand: brand,
-    color: color,
-    year: year,
-    agencyId: agencyId
 
-  })
-    .then(result => {
-      console.log('Created Car');
-      res.status(201).json({
-        message: 'Car created successfully!',
-        car: result
+exports.createCarWithAgency = async (req, res, next) => {
+  const { registration_number, brand, color, year } = req.body;
+  const { agencyId } = req.params; // Corrected: Destructure agencyId from req.params
+  try {
+      // Check if the agency exists
+      const agency = await Agency.findByPk(agencyId);
+      if (!agency) {
+          return res.status(404).json({ message: 'Agency not found' });
+      }
+
+      // Create the car
+      const car = await Car.create({
+          registration_number,
+          brand,
+          color,
+          year,
+          agencyId
       });
-    })
-    .catch(err => {
-      console.log(err);
-    }); 
-}
 
+      res.status(201).json({
+          message: 'Car created successfully!',
+          car
+      });
+  } catch (error) {
+      console.error('Error creating car:', error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+exports.createCar = async (req, res, next) => {
+  const { registration_number, brand, color, year } = req.body;
+
+  try {
+   
+
+      // Create the car
+      const car = await Car.create({
+          registration_number,
+          brand,
+          color,
+          year
+      });
+
+      res.status(201).json({
+          message: 'Car created successfully!',
+          car
+      });
+  } catch (error) {
+      console.error('Error creating car:', error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+};
 //update user
 exports.updateCar = (req, res, next) => {
   const carId = req.params.carId;

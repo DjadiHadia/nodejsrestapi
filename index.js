@@ -17,18 +17,18 @@ app.use((req, res, next) => {
   next();
 });
 
-//test route
+// Test route to see on kubernetes 8
 app.get('/', (req, res, next) => {
-  res.send('Hello World');
+  res.send('Hello oops hadia i mean');
 });
 
-//CRUD routes
+// CRUD routes
 app.use('/users', require('./routes/users'));
 app.use('/cars', require('./routes/cars'));
 app.use('/clients', require('./routes/clients'));
 app.use('/agencies', require('./routes/agencies'));
 
-//error handling
+// Error handling
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
@@ -36,23 +36,27 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message });
 });
 
-//sync database
-sequelize
-  .sync()
-  .then(result => {
-    console.log("Database connected");
+// Sync database
+const syncDatabase = async () => {
+  try {
+    sequelize.sync();
     if (process.env.NODE_ENV !== 'test') { // Only listen when not in test environment
+      console.log("Database connected");
       app.server = app.listen(PORT, () => {
         console.log(`Server is running on port ${PORT}`);
       });
     }
-  })
-  .catch(err => console.log(err));
+  } catch (error) {
+    console.error("Error syncing database:", error);
+  }
+};
+
+// Call the function to sync the database
+syncDatabase();
 
 module.exports = app; // Export app for testing
-module.exports.close = () => {
-  app.server.close();
-};
+
+
 
 
 /*const express = require('express');

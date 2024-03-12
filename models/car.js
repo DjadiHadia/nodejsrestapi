@@ -15,7 +15,7 @@ const Car = db.define('car', {
     year: Sequelize.STRING,
     agencyId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: true,
         references: {
             model: Agency,
             key: 'id'
